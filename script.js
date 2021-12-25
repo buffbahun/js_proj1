@@ -133,6 +133,20 @@ function hexToBin(hex) {
 
 // console.log(hexToBin(h0));
 
+function bitAdder(ary0, ary1) {
+  let bitSize = 5;
+  let carry = 0;
+  let tmpAry = [];
+  for (let i = bitSize - 1; i >= 0; i--) {
+    let sum = ary0[i] ^ ary1[i] ^ carry;
+    carry = ((ary0[i] ^ ary1[i]) & carry) | (ary0[i] & ary1[i]);
+    tmpAry.unshift(sum);
+  }
+  return tmpAry;
+}
+
+// console.log(bitAdder([1, 1, 0, 1, 0], [1, 0, 0, 1, 0]));
+
 // ------ UTILITY ----------//
 
 function toBinary(str) {
@@ -228,3 +242,38 @@ function scheduler(i, ary) {
 }
 
 console.log(messageScheduler(createBlock("abc")));
+
+function compressor(ary) {
+  let a = hexToBin(h0);
+  let b = hexToBin(h1);
+  let c = hexToBin(h2);
+  let d = hexToBin(h3);
+  let e = hexToBin(h4);
+
+  let f = null;
+  let k = null;
+  let temp = null;
+
+  for (let i = 0; i < ary.length; i++) {
+    if (i <= 19) {
+      f = bitOr(bitAnd(b, c), bitAnd(bitNot(b), d));
+      k = hexToBin("0x5a827999");
+    } else if (i >= 20 && i <= 39) {
+      f = bitXor(bitXor(b, c), d);
+      k = hexToBin("0x6ed9eba1");
+    } else if (i >= 40 && i <= 59) {
+      f = bitOr(bitOr(bitAnd(b, c), bitAnd(b, d)), bitAnd(c, d));
+      k = hexToBin("0x8f1bbcdc");
+    } else if (i >= 60 && i <= 79) {
+      f = bitXor(bitXor(b, c), d);
+      k = hexToBin("0xca62c1d6");
+    }
+
+    temp;
+    e = [...d];
+    d = [...c];
+    c = leftRotate([...b], 30);
+    b = [...a];
+    a = [...temp];
+  }
+}
