@@ -133,8 +133,71 @@ function hexToBin(hex) {
 
 // console.log(hexToBin(h0));
 
+function binToHex(ary) {
+  let tmpAry = [];
+
+  for (let i = 0; i + 4 <= ary.length; i += 4) {
+    let char = ary.slice(i, i + 4).join("");
+    switch (char) {
+      case "0000":
+        tmpAry = tmpAry.concat("0");
+        break;
+      case "0001":
+        tmpAry = tmpAry.concat("1");
+        break;
+      case "0010":
+        tmpAry = tmpAry.concat("2");
+        break;
+      case "0011":
+        tmpAry = tmpAry.concat("3");
+        break;
+      case "0100":
+        tmpAry = tmpAry.concat("4");
+        break;
+      case "0101":
+        tmpAry = tmpAry.concat("5");
+        break;
+      case "0110":
+        tmpAry = tmpAry.concat("6");
+        break;
+      case "0111":
+        tmpAry = tmpAry.concat("7");
+        break;
+      case "1000":
+        tmpAry = tmpAry.concat("8");
+        break;
+      case "1001":
+        tmpAry = tmpAry.concat("9");
+        break;
+      case "1010":
+        tmpAry = tmpAry.concat("a");
+        break;
+      case "1011":
+        tmpAry = tmpAry.concat("b");
+        break;
+      case "1100":
+        tmpAry = tmpAry.concat("c");
+        break;
+      case "1101":
+        tmpAry = tmpAry.concat("d");
+        break;
+      case "1110":
+        tmpAry = tmpAry.concat("e");
+        break;
+      case "1111":
+        tmpAry = tmpAry.concat("f");
+        break;
+      default:
+        return [];
+    }
+  }
+  return tmpAry.join("");
+}
+
+// console.log(binToHex([1, 0, 1, 0, 1, 0, 0, 1]));
+
 function bitAdder(ary0, ary1) {
-  let bitSize = 5;
+  let bitSize = 32;
   let carry = 0;
   let tmpAry = [];
   for (let i = bitSize - 1; i >= 0; i--) {
@@ -170,7 +233,7 @@ function toBinary(str) {
   return binary;
 }
 
-console.log(toBinary("abc"));
+// console.log(toBinary("abc"));
 
 function addPadding(binAry) {
   let lnth = binAry.length;
@@ -207,10 +270,10 @@ function createBlock(str) {
   return messageBin;
 }
 
-console.log(
-  createBlock("abcdefghijklmnopqrstuvwxyz"),
-  createBlock("abcdefghijklmnopqrstuvwxyz").length
-);
+// console.log(
+//   createBlock("abcdefghijklmnopqrstuvwxyz"),
+//   createBlock("abcdefghijklmnopqrstuvwxyz").length
+// );
 
 function messageScheduler(ary) {
   let scheduledChunkReq = 80;
@@ -241,7 +304,7 @@ function scheduler(i, ary) {
   ary.push(tmpAry);
 }
 
-console.log(messageScheduler(createBlock("abc")));
+// console.log(messageScheduler(createBlock("abc")));
 
 function compressor(ary) {
   let a = hexToBin(h0);
@@ -269,11 +332,36 @@ function compressor(ary) {
       k = hexToBin("0xca62c1d6");
     }
 
-    temp;
+    temp = bitAdder(
+      bitAdder(bitAdder(bitAdder(leftRotate([...a], 5), [...f]), [...e]), [
+        ...k,
+      ]),
+      [...ary[i]]
+    );
     e = [...d];
     d = [...c];
     c = leftRotate([...b], 30);
     b = [...a];
     a = [...temp];
   }
+
+  h0 = bitAdder(hexToBin(h0), [...a]);
+  h1 = bitAdder(hexToBin(h1), [...b]);
+  h2 = bitAdder(hexToBin(h2), [...c]);
+  h3 = bitAdder(hexToBin(h3), [...d]);
+  h4 = bitAdder(hexToBin(h4), [...e]);
 }
+
+function sha1(str) {
+  let ary = messageScheduler(createBlock(str));
+
+  compressor(ary);
+
+  let data = h0.concat(h1, h2, h3, h4);
+
+  data = binToHex(data);
+
+  return data;
+}
+
+console.log(sha1("abc") === "a9993e364706816aba3e25717850c26c9cd0d89d");
