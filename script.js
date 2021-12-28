@@ -1,11 +1,11 @@
 const BLOCKLENGTH = 512;
 const MESSAGELENGTH = 64;
 
-let h0 = "0x67452301";
-let h1 = "0xEFCDAB89";
-let h2 = "0x98BADCFE";
-let h3 = "0x10325476";
-let h4 = "0xC3D2E1F0";
+let h0 = hexToBin("0x67452301");
+let h1 = hexToBin("0xEFCDAB89");
+let h2 = hexToBin("0x98BADCFE");
+let h3 = hexToBin("0x10325476");
+let h4 = hexToBin("0xC3D2E1F0");
 
 // ------ UTILITY ----------//
 
@@ -233,11 +233,12 @@ function toBinary(str) {
   return binary;
 }
 
-// console.log(toBinary("abc"));
+// console.log(toBinary(""));
 
 function addPadding(binAry) {
   let lnth = binAry.length;
-  let padLnt = BLOCKLENGTH - MESSAGELENGTH - lnth;
+  let k = Math.floor(lnth / (BLOCKLENGTH - MESSAGELENGTH)) + 1;
+  let padLnt = k * BLOCKLENGTH - MESSAGELENGTH - lnth;
 
   // start padding with binary 1
   binAry.push(1);
@@ -247,7 +248,7 @@ function addPadding(binAry) {
 }
 
 function addMessage(paddedAry, msg) {
-  if (paddedAry.length !== BLOCKLENGTH - MESSAGELENGTH) {
+  if ((paddedAry.length + MESSAGELENGTH) % BLOCKLENGTH !== 0) {
     console.log("Error while padding!");
     return -1;
   }
@@ -262,12 +263,18 @@ function addMessage(paddedAry, msg) {
 }
 
 function createBlock(str) {
+  let mainMsgBin = [];
   let messageLnth = str.length * 8;
   let messageBin = toBinary(str);
 
   addPadding(messageBin);
   addMessage(messageBin, messageLnth);
-  return messageBin;
+
+  for (let i = 0; i < messageBin.length; i += BLOCKLENGTH) {
+    mainMsgBin.push(messageBin.slice(i, i + BLOCKLENGTH));
+  }
+
+  return mainMsgBin;
 }
 
 // console.log(
@@ -307,11 +314,11 @@ function scheduler(i, ary) {
 // console.log(messageScheduler(createBlock("abc")));
 
 function compressor(ary) {
-  let a = hexToBin(h0);
-  let b = hexToBin(h1);
-  let c = hexToBin(h2);
-  let d = hexToBin(h3);
-  let e = hexToBin(h4);
+  let a = [...h0];
+  let b = [...h1];
+  let c = [...h2];
+  let d = [...h3];
+  let e = [...h4];
 
   let f = null;
   let k = null;
@@ -345,23 +352,44 @@ function compressor(ary) {
     a = [...temp];
   }
 
-  h0 = bitAdder(hexToBin(h0), [...a]);
-  h1 = bitAdder(hexToBin(h1), [...b]);
-  h2 = bitAdder(hexToBin(h2), [...c]);
-  h3 = bitAdder(hexToBin(h3), [...d]);
-  h4 = bitAdder(hexToBin(h4), [...e]);
+  h0 = bitAdder([...h0], [...a]);
+  h1 = bitAdder([...h1], [...b]);
+  h2 = bitAdder([...h2], [...c]);
+  h3 = bitAdder([...h3], [...d]);
+  h4 = bitAdder([...h4], [...e]);
 }
 
 function sha1(str) {
-  let ary = messageScheduler(createBlock(str));
+  let bigBlock = createBlock(str);
 
-  compressor(ary);
+  for (let blck of bigBlock) {
+    let ary = messageScheduler(blck);
+
+    compressor(ary);
+  }
 
   let data = h0.concat(h1, h2, h3, h4);
 
   data = binToHex(data);
 
+  h0 = hexToBin("0x67452301");
+  h1 = hexToBin("0xEFCDAB89");
+  h2 = hexToBin("0x98BADCFE");
+  h3 = hexToBin("0x10325476");
+  h4 = hexToBin("0xC3D2E1F0");
+
   return data;
 }
 
-console.log(sha1("abc") === "a9993e364706816aba3e25717850c26c9cd0d89d");
+console.log(sha1("abc"));
+
+// -------------------- Virtual DOM --------------------
+
+const input = document.querySelector(".message input");
+const calc = document.querySelector(".message button");
+const result = document.querySelector(".result p");
+
+calc.addEventListener("click", () => {
+  let val = input.value;
+  result.textContent = "SHA-1 for the string is: " + sha1(val);
+});

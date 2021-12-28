@@ -1,0 +1,63 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+h2,
+h3 {
+  text-align: center;
+  font-size: 1.6em;
+  letter-spacing: 2px;
+}
+
+body {
+}
+
+body > div {
+  padding: 20px 30px;
+  width: 45vw;
+  margin: 50px auto;
+  border: 3px solid #dddddd;
+  border-radius: 10px;
+}
+
+body > div {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.message > * {
+  display: block;
+  margin-bottom: 20px;
+}
+
+.message button {
+  font-size: 1.2em;
+  letter-spacing: 1px;
+  padding: 5px 8px;
+  border-radius: 10px;
+  border: none;
+  background-color: rgb(255, 42, 42);
+  color: white;
+}
+
+.message input {
+  width: 40%;
+  height: 35px;
+  border-radius: 8px;
+  border: 2px solid grey;
+  padding: 5px 10px;
+  font-size: 1em;
+}
+
+body > * > * {
+  margin-bottom: 20px;
+}
+
+p {
+  font-size: 1.5em;
+  letter-spacing: 2px;
+}
